@@ -7,10 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,19 +18,32 @@ import androidx.compose.ui.platform.LocalContext
 import com.acuminx.habittracker.ui.screens.HabitTrackerScreen
 import com.acuminx.habittracker.ui.theme.HabitTrackerTheme
 
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.acuminx.habittracker.data.HabitDatabase
+import com.acuminx.habittracker.viewmodel.HabitViewModel
+import com.acuminx.habittracker.viewmodel.HabitViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Android 14+ UI standard
+        enableEdgeToEdge()
+
+        // Initialize Database and DAO
+        val database = HabitDatabase.getDatabase(this)
+        val dao = database.habitDao()
+        val factory = HabitViewModelFactory(dao)
 
         setContent {
-            // Hoist theme state to the top level
             val systemTheme = isSystemInDarkTheme()
             var isDarkTheme by remember { mutableStateOf(systemTheme) }
 
+            // Get ViewModel instance scoped to this activity
+            val viewModel: HabitViewModel = viewModel(factory = factory)
+
             HabitTrackerTheme(darkTheme = isDarkTheme) {
                 HabitTrackerScreen(
+                    viewModel = viewModel,
                     isDarkTheme = isDarkTheme,
                     onToggleTheme = { isDarkTheme = !isDarkTheme }
                 )

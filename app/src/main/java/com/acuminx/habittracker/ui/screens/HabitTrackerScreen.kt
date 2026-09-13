@@ -16,20 +16,26 @@ import com.acuminx.habittracker.data.Habit
 import com.acuminx.habittracker.ui.components.AddHabitDialog
 import com.acuminx.habittracker.ui.components.CategoryFilterRow
 import com.acuminx.habittracker.ui.components.HabitItem
+import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.acuminx.habittracker.viewmodel.HabitViewModel
 
 // STATEFUL COMPOSABLE
 @Composable
 fun HabitTrackerScreen(
+    viewModel: HabitViewModel,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit
 ) {
-    // In-memory state
-    val habits = remember { mutableStateListOf<Habit>() }
+    // Observe database state safely
+    val habits by viewModel.habits.collectAsStateWithLifecycle()
+
+    // UI-only state (doesn't need to be in ViewModel/DB)
     var selectedFilter by remember { mutableStateOf(Category.ALL) }
     var showAddDialog by remember { mutableStateOf(false) }
 
     // Derived state for filtering
-    val filteredHabits = remember(habits.toList(), selectedFilter) {
+    val filteredHabits = remember(habits, selectedFilter) {
         if (selectedFilter == Category.ALL) habits
         else habits.filter { it.category == selectedFilter }
     }
@@ -40,17 +46,7 @@ fun HabitTrackerScreen(
         isDarkTheme = isDarkTheme,
         onToggleTheme = onToggleTheme,
         onFilterChange = { selectedFilter = it },
-        onToggleCompletion = { habit ->
-            val index = habits.indexOfFirst { it.id == habit.id }
-            if (index != -1) {
-                val currentStreak = habit.streak
-                val newStreak = if (habit.isCompleted) currentStreak else currentStreak + 1
-                habits[index] = habit.copy(
-                    isCompleted = !habit.isCompleted,
-                    streak = newStreak
-                )
-            }
-        },
+        onToggleCompletion = { habit -> viewModel.toggleHabitCompletion(habit) },
         onAddClick = { showAddDialog = true }
     )
 
@@ -58,7 +54,7 @@ fun HabitTrackerScreen(
         AddHabitDialog(
             onDismiss = { showAddDialog = false },
             onConfirm = { name, desc, category ->
-                habits.add(Habit(name = name, description = desc, category = category))
+                viewModel.addHabit(name, desc, category)
                 showAddDialog = false
             }
         )

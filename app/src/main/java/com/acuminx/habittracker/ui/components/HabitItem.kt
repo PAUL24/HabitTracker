@@ -10,8 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.acuminx.habittracker.data.Category
 import com.acuminx.habittracker.data.Habit
+import com.acuminx.habittracker.ui.theme.HabitTrackerTheme
 
 @Composable
 fun HabitItem(
@@ -72,5 +75,21 @@ fun HabitItem(
                 onCheckedChange = { onToggleCompletion(habit) }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HabitItemPreview() {
+    HabitTrackerTheme {
+        HabitItem(
+            habit = Habit(
+                name = "Reading",
+                description = "Read at least 10 pages",
+                category = Category.HEALTH,
+                streak = 5
+            ),
+            onToggleCompletion = {}
+        )
     }
 }

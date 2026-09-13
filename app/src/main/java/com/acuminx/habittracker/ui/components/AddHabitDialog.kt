@@ -15,7 +15,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.acuminx.habittracker.data.Category
+import com.acuminx.habittracker.ui.theme.HabitTrackerTheme
 
 @Composable
 fun AddHabitDialog(
@@ -30,29 +32,14 @@ fun AddHabitDialog(
         onDismissRequest = onDismiss,
         title = { Text("New Habit") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Habit Name") },
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") }
-                )
-                Text("Category", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Category.entries.filter { it != Category.ALL }.forEach { cat ->
-                        FilterChip(
-                            selected = category == cat,
-                            onClick = { category = cat },
-                            label = { Text(cat.name) }
-                        )
-                    }
-                }
-            }
+            AddHabitDialogContent(
+                name = name,
+                onNameChange = { name = it },
+                description = description,
+                onDescriptionChange = { description = it },
+                category = category,
+                onCategoryChange = { category = it }
+            )
         },
         confirmButton = {
             TextButton(
@@ -65,3 +52,53 @@ fun AddHabitDialog(
         }
     )
 }
+
+@Composable
+fun AddHabitDialogContent(
+    name: String,
+    onNameChange: (String) -> Unit,
+    description: String,
+    onDescriptionChange: (String) -> Unit,
+    category: Category,
+    onCategoryChange: (Category) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            label = { Text("Habit Name") },
+            singleLine = true
+        )
+        OutlinedTextField(
+            value = description,
+            onValueChange = onDescriptionChange,
+            label = { Text("Description") }
+        )
+        Text("Category", style = MaterialTheme.typography.labelLarge)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Category.entries.filter { it != Category.ALL }.forEach { cat ->
+                FilterChip(
+                    selected = category == cat,
+                    onClick = { onCategoryChange(cat) },
+                    label = { Text(cat.name) }
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddHabitDialogPreview() {
+    HabitTrackerTheme {
+        AddHabitDialogContent(
+            name = "Morning Run",
+            onNameChange = {},
+            description = "Run for 30 minutes",
+            onDescriptionChange = {},
+            category = Category.HEALTH,
+            onCategoryChange = {}
+        )
+    }
+}
+

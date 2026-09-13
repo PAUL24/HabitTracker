@@ -9,7 +9,9 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.acuminx.habittracker.data.Category
+import com.acuminx.habittracker.ui.theme.HabitTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,5 +30,16 @@ fun CategoryFilterRow(
                 label = { Text(category.name) }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CategoryFilterRowPreview() {
+    HabitTrackerTheme {
+        CategoryFilterRow(
+            selectedCategory = Category.ALL,
+            onCategorySelected = {}
+        )
     }
 }
